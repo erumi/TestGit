@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<project name="portal" basedir="." default="TestGit">
+    <property file="build.properties"/>
+
+    <target name="TestGit" depends="clear,init,compile"/>
+    <!--初始化目录-->
+    <target name="init" description="目录准备">
+            <mkdir dir="${build.generated.dir}"></mkdir>
+    		<mkdir dir="${build.generated.classdir}"></mkdir>
+	    	<copy todir="${build.generated.dir}">
+	    			 <fileset dir="${project.docroot.dir}">
+	    			 </fileset>
+	    	</copy>
+    	   <copy todir="${build.generated.dir}/WEB-INF/lib">
+	    			 <fileset dir="${project.lib.dir}">
+	    			 	 <include name="*.jar"/>
+	    			 	 <exclude name="servlet-api.jar"/>
+	    			 	  <exclude name="jsp-api.jar"/>
+	    			 	 <exclude name="jsf-api.jar"/>
+	    			     <exclude name="jsf-impl.jar"/>
+	    			 </fileset>
+	    	</copy>
+    </target>
+    <!--目录清除-->
+    <target name="clear" description="目录清除">
+         <delete dir="${build.generated.dir}"/>
+    </target>
+     <!--编译-->
+    <target name="compile" description="编译全部代码" depends="init">
+        <javac debug="on" srcdir="${project.java.dir}"
+            destdir="${build.generated.dir}/WEB-INF/classes">
+            <classpath>
+                <path refid="project.class.path"/>
+            </classpath>
+        	<compilerarg line="-encoding UTF-8 "/>   
+        </javac>
+    	<copy todir="${build.generated.dir}/WEB-INF/classes">
+    			 <fileset dir="${project.java.dir}">
+    			 	<include name="**/*.xml"/>
+    			 	<include name="**/*.properties"/>
+    			 </fileset>
+    	</copy>
+    </target>
+
+    <!--定义编译时，引用包资源-->
+    <path id="project.class.path">
+        <fileset dir="${project.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+    <!--打成一个war包-->
+  <target name="war">
+        <war basedir="${project.docroot.dir}"
+            destfile="${build.dir}/portal.war"
+            webxml="${project.docroot.dir}/WEB-INF/web.xml">
+            <include name="WEB-INF/struts-config.xml"/>
+            <include name="WEB-INF/tld/*.tld"/>
+
+            <lib dir="${project.lib.dir}">
+                <include name="*.jar"/>
+                <exclude name="servlet-api.jar"/>
+                <exclude name="jsp-api.jar"/>
+            	<exclude name="jsf-api.jar"/>
+            	 <exclude name="jsf-impl.jar"/>
+            </lib>
+            <fileset dir="${project.docroot.dir}">
+                <include name="**/*.*"/>
+                <exclude name="**/readme.txt"/>
+            </fileset>
+        </war>
+    </target>
+    <!--部暑，把portal.jar文件copy到web-inf/lib目录下-->
+    <target name="deploy">
+        <copy todir="${project.docroot.dir}/WEB-INF/lib">
+            <fileset dir="${build.dir}">
+                <include name="portal.jar"></include>
+            </fileset>
+        </copy>
+    </target>
+   <!--发布-->
+    <target name="release" depends="war">
+        <delete dir="${build.dir}/res"/>
+        <delete dir="${build.dir}/sql"/>
+        <delete dir="${build.dir}/doc"/>
+        <copydir src="${basedir}/res" dest="${build.dir}/res"/>
+        <copydir src="${basedir}/sql" dest="${build.dir}/sql"/>
+        <delete dir="${build.generated.dir}"/>
+    </target>
+</project>
