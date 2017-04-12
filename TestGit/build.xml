@@ -9,8 +9,8 @@
             <mkdir dir="${build.generated.dir}"></mkdir>
     		<mkdir dir="${build.generated.classdir}"></mkdir>
 	    	<copy todir="${build.generated.dir}">
-	    			 <fileset dir="${project.docroot.dir}">
-	    			 </fileset>
+	    			<fileset dir="${project.docroot.dir}" excludes="**/*.class">
+	    			</fileset>
 	    	</copy>
     	   <copy todir="${build.generated.dir}/WEB-INF/lib">
 	    			 <fileset dir="${project.lib.dir}">
